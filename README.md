@@ -69,4 +69,4 @@ The system uses a structured prompt to enforce "Mentor Mode":
 
 ---
 
-Built with ❤️ by Antigravity
+
