@@ -3,9 +3,12 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { Zap, Brain, Shield, Sparkles, ChevronRight, Activity, Cpu, Target } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -29,7 +32,7 @@ export default function Home() {
         
         {/* Animated Particles */}
         <div className="absolute inset-0">
-          {[...Array(30)].map((_, i) => (
+          {mounted && [...Array(30)].map((_, i) => (
             <div 
               key={i}
               className="particle absolute bg-white/20 rounded-full"
