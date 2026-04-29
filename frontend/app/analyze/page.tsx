@@ -6,7 +6,7 @@ import CodeEditor from '../components/CodeEditor';
 import Scanner from '../components/Scanner';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { Code, FileText, CheckSquare, Zap } from 'lucide-react';
+import { Code, FileText, CheckSquare, Zap, Target, ArrowRight, Sparkles } from 'lucide-react';
 
 type InputType = 'code' | 'text' | 'mcq';
 
@@ -21,119 +21,172 @@ export default function AnalyzePage() {
     setIsAnalyzing(true);
     
     try {
-      // For demo purposes, we'll wait 3 seconds to show the scanner
-      // In production, this would be the actual API call
       const response = await axios.post('http://localhost:8000/analyze', {
         type: inputType,
         content: content
       });
       
-      // Store result in local storage or state management to pass to results page
       localStorage.setItem('analysis_result', JSON.stringify(response.data));
       router.push('/result');
     } catch (error) {
       console.error('Analysis failed:', error);
-      alert('Failed to analyze. Make sure backend is running.');
+      alert('Neural sync failed. Ensure core engine is running.');
     } finally {
       setIsAnalyzing(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24 px-6 pb-12">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-180px)]">
+    <div className="min-h-screen bg-background pt-32 px-6 pb-20 selection:bg-accent/30">
+      <div className="max-w-7xl mx-auto space-y-10">
         
-        {/* Left Panel: Input */}
-        <motion.div 
-          className="flex flex-col space-y-4"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <div className="flex items-center justify-between bg-white/5 p-2 rounded-lg border border-white/10 glass">
-            <div className="flex space-x-2">
+        {/* Header Info */}
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-10">
+          <div>
+            <div className="flex items-center space-x-2 text-accent mb-2">
+              <Sparkles size={16} />
+              <span className="text-[10px] font-black tracking-[0.3em] uppercase">Cognitive Phase 01</span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-black tracking-tighter">DATA INGESTION</h1>
+          </div>
+          <div className="text-right hidden md:block">
+            <p className="text-white/20 text-xs font-mono tracking-widest uppercase">System status: <span className="text-green-500">OPTIMAL</span></p>
+            <p className="text-white/10 text-[10px] font-mono mt-1">LATENCY: 24MS • SYNC: TRUE</p>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 min-h-[600px]">
+          
+          {/* Left Panel: Input Pod (7 cols) */}
+          <motion.div 
+            className="lg:col-span-7 flex flex-col space-y-6"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            {/* Type Selector */}
+            <div className="flex items-center p-1.5 bg-white/[0.03] border border-white/5 rounded-2xl w-fit glass">
               <TabButton 
                 active={inputType === 'code'} 
                 onClick={() => setInputType('code')}
-                icon={<Code size={16} />}
-                label="Code"
+                icon={<Code size={14} />}
+                label="CODE"
               />
               <TabButton 
                 active={inputType === 'text'} 
                 onClick={() => setInputType('text')}
-                icon={<FileText size={16} />}
-                label="Answer"
+                icon={<FileText size={14} />}
+                label="ANSWER"
               />
               <TabButton 
                 active={inputType === 'mcq'} 
                 onClick={() => setInputType('mcq')}
-                icon={<CheckSquare size={16} />}
+                icon={<CheckSquare size={14} />}
                 label="MCQ"
               />
             </div>
-          </div>
 
-          <div className="flex-1 relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-            {inputType === 'code' ? (
-              <CodeEditor code={content} onChange={(v) => setContent(v || '')} />
-            ) : (
-              <textarea
-                className="w-full h-full bg-black/40 text-white p-6 rounded-xl border border-white/10 glass focus:outline-none focus:border-accent/50 transition-colors resize-none font-sans"
-                placeholder={inputType === 'text' ? "Paste your written answer here..." : "Paste the MCQ question and your reasoning here..."}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-              />
-            )}
-          </div>
-
-          <button
-            onClick={handleAnalyze}
-            disabled={isAnalyzing || !content.trim()}
-            className="w-full py-4 bg-primary text-white rounded-xl font-bold tracking-widest uppercase hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 neon-glow"
-          >
-            <Zap size={20} fill="currentColor" />
-            <span>Analyze My Thinking</span>
-          </button>
-        </motion.div>
-
-        {/* Right Panel: Placeholder or Result Preview */}
-        <motion.div 
-          className="relative flex items-center justify-center rounded-xl border border-white/5 glass bg-white/[0.02] overflow-hidden"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <AnimatePresence mode="wait">
-            {isAnalyzing ? (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <Scanner />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center space-y-4 px-12"
-              >
-                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Zap size={32} className="text-white/20" />
+            {/* Input Pod */}
+            <div className="flex-1 relative group">
+              <div className="absolute -inset-[1px] bg-gradient-to-br from-primary/20 via-transparent to-accent/20 rounded-3xl blur-sm opacity-50 group-focus-within:opacity-100 transition duration-1000"></div>
+              <div className="relative h-full w-full bg-black/40 rounded-3xl border border-white/10 glass overflow-hidden">
+                {inputType === 'code' ? (
+                  <CodeEditor code={content} onChange={(v) => setContent(v || '')} />
+                ) : (
+                  <textarea
+                    className="w-full h-full bg-transparent text-white p-10 rounded-3xl focus:outline-none transition-all resize-none font-sans text-lg placeholder:text-white/10 leading-relaxed"
+                    placeholder={inputType === 'text' ? "Deploy your written reasoning here..." : "Input MCQ question and your thought process..."}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                  />
+                )}
+                
+                {/* Visual accents */}
+                <div className="absolute top-4 right-4 flex space-x-1">
+                  <div className="w-1 h-1 bg-white/20 rounded-full"></div>
+                  <div className="w-1 h-1 bg-white/20 rounded-full"></div>
+                  <div className="w-1 h-1 bg-white/20 rounded-full"></div>
                 </div>
-                <h3 className="text-xl font-medium text-white/60">Ready for Analysis</h3>
-                <p className="text-white/40 text-sm">
-                  Provide your work on the left and click analyze to start the deep reasoning scan.
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          {/* Subtle Grid Background */}
-          <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-        </motion.div>
+              </div>
+            </div>
 
+            {/* Action Pod */}
+            <button
+              onClick={handleAnalyze}
+              disabled={isAnalyzing || !content.trim()}
+              className="group relative w-full h-20 rounded-3xl overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              <div className="absolute inset-0 bg-white group-hover:bg-accent transition-colors duration-500"></div>
+              <div className="relative flex items-center justify-center space-x-3 text-black group-hover:text-white transition-colors duration-500">
+                <span className="text-xl font-black tracking-[0.2em]">INITIATE ANALYSIS</span>
+                <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
+              </div>
+            </button>
+          </motion.div>
+
+          {/* Right Panel: Processing Pod (5 cols) */}
+          <motion.div 
+            className="lg:col-span-5 relative flex items-center justify-center rounded-[40px] border border-white/5 glass-dark overflow-hidden group min-h-[400px]"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            {/* Background elements */}
+            <div className="absolute top-0 right-0 p-10 opacity-5">
+              <Activity size={200} className="text-accent" />
+            </div>
+            
+            <AnimatePresence mode="wait">
+              {isAnalyzing ? (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.1 }}
+                  className="flex flex-col items-center"
+                >
+                  <Scanner />
+                  <div className="mt-8 space-y-2 text-center">
+                    <p className="text-accent font-black tracking-[0.3em] text-[10px] animate-pulse">DECODING NEURAL PATHS</p>
+                    <p className="text-white/20 text-[10px] font-mono">EST. REMAINING: 1.4S</p>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center space-y-6 px-16 relative z-10"
+                >
+                  <div className="w-20 h-20 bg-white/5 rounded-[30px] flex items-center justify-center mx-auto mb-4 border border-white/10 group-hover:scale-110 transition-transform duration-500">
+                    <Target size={32} className="text-white/20 group-hover:text-accent transition-colors" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black tracking-tight text-white/80">READY FOR SCAN</h3>
+                    <p className="text-white/30 text-sm font-light mt-2 leading-relaxed">
+                      Deploy your work to the ingestion port and click initiate to perform a deep cognitive reasoning scan.
+                    </p>
+                  </div>
+                  
+                  {/* Status Bar */}
+                  <div className="pt-6 border-t border-white/5 flex items-center justify-center space-x-6">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Logic</span>
+                      <span className="text-xs font-mono text-white/40">OFFLINE</span>
+                    </div>
+                    <div className="w-[1px] h-4 bg-white/10" />
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Gaps</span>
+                      <span className="text-xs font-mono text-white/40">OFFLINE</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {/* Decorative Grid */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+          </motion.div>
+
+        </div>
       </div>
     </div>
   );
@@ -143,10 +196,10 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
   return (
     <button
       onClick={onClick}
-      className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+      className={`flex items-center space-x-2 px-6 py-2.5 rounded-xl text-[10px] font-black tracking-[0.2em] transition-all duration-300 ${
         active 
-          ? 'bg-white/10 text-white' 
-          : 'text-white/40 hover:text-white/60 hover:bg-white/5'
+          ? 'bg-white text-black shadow-xl scale-105' 
+          : 'text-white/30 hover:text-white/60 hover:bg-white/5'
       }`}
     >
       {icon}
