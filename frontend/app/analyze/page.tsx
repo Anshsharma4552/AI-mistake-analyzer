@@ -6,7 +6,7 @@ import CodeEditor from '../components/CodeEditor';
 import Scanner from '../components/Scanner';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { Code, FileText, CheckSquare, Zap, Target, ArrowRight, Sparkles } from 'lucide-react';
+import { Code, FileText, CheckSquare, Zap, Target, ArrowRight, Sparkles, Activity } from 'lucide-react';
 
 type InputType = 'code' | 'text' | 'mcq';
 
