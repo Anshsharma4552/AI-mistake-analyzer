@@ -24,7 +24,6 @@ export default function CodeEditor({ code, onChange, language = 'javascript' }: 
           smoothScrolling: true,
           cursorSmoothCaretAnimation: "on",
           lineNumbersMinChars: 3,
-          backgroundColor: '#0a0a0a',
         }}
       />
     </div>
